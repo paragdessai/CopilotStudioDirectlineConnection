@@ -32,7 +32,7 @@
 /* ---------- 1.  MSAL sign-in ---------- */
 const msalInstance = new msal.PublicClientApplication({
   auth:{
-    clientId:"c5413c9d-c1c5-4765-886f-53c2566ce659",
+    clientId:"ADD YOUR CLIENT HERE",
     authority:"https://login.microsoftonline.com/common",
     redirectUri:"http://localhost:5000/getAToken"
   },
@@ -55,7 +55,7 @@ async function startChat(acct){
 
   const directLine = window.WebChat.createDirectLine({
     // For production, switch to a short-lived token from your backend. Using Agent A in Early Release Env.
-    secret: "3MOvGtZLsknQiWUaZahnvn0s941vZMca95VRhp8Fqe7fBW6ZLuBnJQQJ99BFACqBBLyAArohAAABAZBS1h0G.CVkLC9UOCbhO05Du9yEM8RQnGjoRrnTIpbqZRFZ1S0AlnyXj1Gb2JQQJ99BFACqBBLyAArohAAABAZBSFAiI"
+    secret: "COPILOT STUDIO AGENT SECRET HERE"
   });
 
   window.WebChat.renderWebChat(
