@@ -9,7 +9,7 @@ Connect to copilot studio agent with SSO using directline API's
 
 ---
 
-## 🌟 Live demo
+## ‼️‼️‼️ For Demo Only. Do not use copilot studio secret directly in production.
 
 If you publish `index.html` with GitHub Pages or any static host, add the link here.
 
