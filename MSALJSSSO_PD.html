@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Copilot Studio Chat</title>
+
+  <!-- MSAL -->
+  <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
+
+  <!-- React + Web Chat -->
+  <script src="https://unpkg.com/react@16.8.6/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@16.8.6/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"></script>
+
+  <style>
+    html,body{height:100%;margin:0;font-family:'Segoe UI',sans-serif;background:#f4f4f4;display:flex;flex-direction:column}
+    #loginStatus{padding:1rem;text-align:center;font-size:18px}
+    #container{flex:1;display:none;flex-direction:column;width:100%}
+    #greeting{padding:1rem;font-size:22px;background:#fff;border-bottom:1px solid #ddd;text-align:center}
+    #webchat{flex:1}
+  </style>
+</head>
+<body>
+  <div id="loginStatus">Authenticating with Microsoft…</div>
+
+  <div id="container">
+    <div id="greeting"></div>
+    <div id="webchat" role="main"></div>
+  </div>
+
+<script>
+/* ---------- 1.  MSAL sign-in ---------- */
+const msalInstance = new msal.PublicClientApplication({
+  auth:{
+    clientId:"c5413c9d-c1c5-4765-886f-53c2566ce659",
+    authority:"https://login.microsoftonline.com/common",
+    redirectUri:"http://localhost:5000/getAToken"
+  },
+  cache:{cacheLocation:"localStorage",storeAuthStateInCookie:true}
+});
+const loginRequest={scopes:["User.Read"]};
+
+async function getUser(){
+  const accts = msalInstance.getAllAccounts();
+  if (accts.length) return accts[0];
+  const res = await msalInstance.loginPopup(loginRequest);
+  return res.account;
+}
+
+/* ---------- 2.  Start Web Chat (short userID) ---------- */
+async function startChat(acct){
+  // Trim or fall back so userID ≤ 64 chars
+  const safeUserID =
+    (acct.localAccountId || acct.username || crypto.randomUUID()).slice(0,64);
+
+  const directLine = window.WebChat.createDirectLine({
+    // For production, switch to a short-lived token from your backend. Using Agent A in Early Release Env.
+    secret: "3MOvGtZLsknQiWUaZahnvn0s941vZMca95VRhp8Fqe7fBW6ZLuBnJQQJ99BFACqBBLyAArohAAABAZBS1h0G.CVkLC9UOCbhO05Du9yEM8RQnGjoRrnTIpbqZRFZ1S0AlnyXj1Gb2JQQJ99BFACqBBLyAArohAAABAZBSFAiI"
+  });
+
+  window.WebChat.renderWebChat(
+    {
+      directLine,
+      userID: safeUserID,
+      username: acct.username,
+      locale:'en-US',
+      styleOptions:{
+        bubbleFromUserBackground:'#0078d4',
+        bubbleFromUserTextColor:'#ffffff',
+        bubbleBackground:'#e0e0e0',
+        backgroundColor:'#ffffff'
+      }
+    },
+    document.getElementById('webchat')
+  );
+}
+
+/* ---------- 3.  Page bootstrap ---------- */
+document.addEventListener('DOMContentLoaded', async () => {
+  try{
+    const acct = await getUser();
+    document.getElementById('loginStatus').style.display = 'none';
+    document.getElementById('greeting').textContent = `Hello, ${acct.username} 👋`;
+    document.getElementById('container').style.display = 'flex';
+    await startChat(acct);
+  }catch(err){
+    document.getElementById('loginStatus').innerHTML =
+      `<span style="color:red;">${err.message}</span>`;
+  }
+});
+</script>
+</body>
+</html>
